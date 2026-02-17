@@ -62,20 +62,81 @@
             z-index: -1;
         }
 
-        #root {
+        .todo-container {
             width: 100%;
-            max-width: 450px;
+            max-width: 1800px;
             z-index: 1;
+            padding: 20px;
         }
 
-        .todo-container {
-            background: rgba(255, 255, 255, 0.85);
-            padding: 2rem;
-            border-radius: 24px;
+        .main-layout {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 15px;
+            align-items: start;
+        }
+
+        @media (max-width: 1400px) {
+            .main-layout {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        @media (max-width: 900px) {
+            .main-layout {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 600px) {
+            .main-layout {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .todo-section {
+            background: rgba(255, 255, 255, 0.75);
+            padding: 1.25rem;
+            border-radius: 20px;
             box-shadow: var(--shadow);
             backdrop-filter: blur(15px);
             border: 1px solid rgba(255, 255, 255, 0.3);
+            min-height: 520px;
+            display: flex;
+            flex-direction: column;
             animation: fadeIn 0.6s ease-out;
+        }
+
+        /* Section E (Center) Special Style */
+        .section-center {
+            background: rgba(255, 255, 255, 0.92);
+            border: 2px solid var(--primary);
+            transform: scale(1.02);
+            z-index: 2;
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1.2rem;
+            padding-bottom: 0.8rem;
+            border-bottom: 2px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .section-header h2 {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--text-main);
+        }
+
+        .section-label {
+            font-size: 0.8rem;
+            font-weight: 600;
+            background: var(--primary);
+            color: white;
+            padding: 2px 8px;
+            border-radius: 6px;
         }
 
         @keyframes fadeIn {
@@ -144,6 +205,42 @@
             gap: 10px;
         }
 
+        .drop-zone {
+            border: 2px dashed #cbd5e1;
+            border-radius: 12px;
+            padding: 1.5rem;
+            text-align: center;
+            color: var(--text-sub);
+            font-size: 0.9rem;
+            margin-bottom: 1.5rem;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            background: rgba(255, 255, 255, 0.5);
+        }
+
+        .drop-zone.active {
+            border-color: var(--primary);
+            background: rgba(99, 102, 241, 0.1);
+            color: var(--primary);
+        }
+
+        .ai-import-btn {
+            background: #f1f5f9;
+            color: var(--text-main);
+            border: 1px solid #e2e8f0;
+            padding: 8px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            width: 100%;
+            margin-top: 5px;
+            transition: all 0.2s;
+        }
+
+        .ai-import-btn:hover {
+            background: #e2e8f0;
+        }
+
         input {
             flex: 1;
             padding: 12px 16px;
@@ -189,16 +286,213 @@
             list-style: none;
         }
 
+        .todo-input:disabled, .date-input:disabled {
+            background: rgba(255, 255, 255, 0.5);
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+
+        .add-btn:disabled {
+            background: #cbd5e1;
+            cursor: not-allowed;
+            transform: none !important;
+            box-shadow: none !important;
+        }
+
+        .ai-import-btn {
+            background: #f8fafc;
+            color: var(--text-main);
+            border: 1px solid #e2e8f0;
+            padding: 10px 16px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            width: 100%;
+            margin-top: 10px;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+        }
+
+        .ai-import-btn:hover:not(:disabled) {
+            background: #f1f5f9;
+            border-color: #cbd5e1;
+            transform: translateY(-1px);
+        }
+
+        .ai-import-btn:disabled {
+            background: #f1f5f9;
+            color: #94a3b8;
+            cursor: not-allowed;
+            opacity: 0.6;
+            border-color: #e2e8f0;
+        }
+
+        .auth-status {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+            padding: 12px 16px;
+            background: rgba(255, 255, 255, 0.4);
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
         .todo-item {
             display: flex;
             align-items: center;
+            padding: 14px 40px 14px 14px; /* Space for delete button */
+            background: rgba(255, 255, 255, 0.5);
+            margin-bottom: 12px;
+            border-radius: 16px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            animation: slideIn 0.4s ease-out;
+            position: relative;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            backdrop-filter: blur(8px);
+        }
+
+        .todo-item:hover {
+            transform: translateY(-2px);
+            background: rgba(255, 255, 255, 0.8);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+
+        .todo-item.completed {
+            opacity: 0.6;
+            background: rgba(241, 245, 249, 0.5);
+        }
+
+        .todo-item.completed .todo-text {
+            text-decoration: line-through;
+            color: var(--text-sub);
+        }
+
+        .todo-checkbox {
+            -webkit-appearance: none !important;
+            -moz-appearance: none !important;
+            appearance: none !important;
+            width: 14px !important;
+            height: 14px !important;
+            min-width: 14px !important;
+            min-height: 14px !important;
+            max-width: 14px !important;
+            max-height: 14px !important;
+            flex: none !important;
+            aspect-ratio: 1 / 1 !important;
+            box-sizing: border-box !important;
+            border: 1.5px solid var(--primary) !important;
+            border-radius: 3px !important;
+            cursor: pointer !important;
+            margin-right: 12px !important;
+            position: relative !important;
+            background: transparent !important;
+            transition: all 0.2s !important;
+            z-index: 2 !important;
+            padding: 0 !important;
+            margin-top: 0 !important;
+            display: inline-block !important;
+            outline: none !important;
+            box-shadow: none !important;
+        }
+
+        .todo-checkbox:checked {
+            background: #fff !important;
+            border-color: var(--primary) !important;
+        }
+
+        .todo-checkbox:checked::after {
+            content: '';
+            position: absolute;
+            left: -7px;
+            top: -13px;
+            width: 8px;
+            height: 18px;
+            border: solid #ef4444;
+            border-width: 0 4px 4px 0;
+            transform-origin: bottom right;
+            transform: rotate(45deg);
+            z-index: 10;
+            pointer-events: none;
+        }
+
+        .todo-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            cursor: pointer;
+            overflow: hidden;
+        }
+
+        .edit-input {
+            width: 100%;
+            padding: 4px 8px;
+            border: 1px solid var(--primary);
+            border-radius: 6px;
+            font-size: 0.95rem;
+            margin-bottom: 5px;
+        }
+
+        .edit-date-input {
+            font-size: 0.75rem;
+            padding: 2px 6px;
+            border: 1px solid #cbd5e1;
+            border-radius: 4px;
+        }
+
+        .todo-actions {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .edit-mode-container {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            width: 100%;
+        }
+
+        .edit-btn-row {
+            display: flex;
+            align-items: center;
             justify-content: space-between;
-            padding: 12px 16px;
-            background: #f1f5f9;
-            margin-bottom: 10px;
-            border-radius: 12px;
-            transition: all 0.2s ease;
-            animation: slideIn 0.3s ease-out;
+            gap: 10px;
+        }
+
+        .edit-input, .edit-date-input {
+            background: rgba(255, 255, 255, 0.9);
+            border: 1px solid var(--primary);
+            border-radius: 8px;
+            padding: 8px 12px;
+            font-size: 0.9rem;
+        }
+
+        .edit-date-input {
+            flex: 1;
+            padding: 4px 8px;
+        }
+
+        .edit-btn:hover { color: var(--primary); }
+        .save-btn { 
+            color: white; 
+            background: var(--success); 
+            padding: 4px 12px;
+            border-radius: 6px;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+        }
+        .cancel-btn { 
+            color: var(--danger);
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            font-size: 0.85rem;
         }
 
         @keyframes slideIn {
@@ -213,54 +507,50 @@
             }
         }
 
-        .todo-item:hover {
-            transform: scale(1.02);
-            background: #e2e8f0;
-        }
-
-        .todo-content {
-            display: flex;
-            flex-direction: column;
-            flex: 1;
-        }
-
-        .todo-text {
-            color: var(--text-main);
-            font-size: 1rem;
-            font-weight: 400;
-        }
-
         .todo-meta {
             display: flex;
-            gap: 10px;
-            margin-top: 4px;
+            align-items: center;
+            gap: 8px;
+            margin-top: 2px;
         }
 
         .todo-date {
             font-size: 0.75rem;
             color: var(--text-sub);
-        }
-
-        .sync-status {
-            font-size: 0.7rem;
-            color: var(--success);
+            display: flex;
+            align-items: center;
+            gap: 4px;
         }
 
         .delete-btn {
+            position: absolute;
+            top: 6px;
+            right: 6px;
             background: none;
             border: none;
             color: var(--text-sub);
             cursor: pointer;
-            padding: 4px 8px;
-            border-radius: 6px;
-            transition: all 0.2s ease;
-            font-size: 1.2rem;
-            margin-left: 10px;
+            width: 22px;
+            height: 22px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            font-size: 0.9rem;
+            opacity: 0.4; /* Partially visible by default for easier discovery */
+            z-index: 3;
+        }
+
+        .todo-item:hover .delete-btn {
+            opacity: 1;
+            background: rgba(239, 68, 68, 0.1);
         }
 
         .delete-btn:hover {
-            color: var(--danger);
-            background: rgba(239, 68, 68, 0.1);
+            color: white !important;
+            background: var(--danger) !important;
+            transform: rotate(90deg);
         }
 
         .empty-state {
@@ -269,6 +559,143 @@
             margin-top: 2rem;
             font-size: 0.9rem;
         }
+
+        /* Modal Styles */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal {
+            background: white;
+            padding: 2rem;
+            border-radius: 20px;
+            width: 90%;
+            max-width: 400px;
+            box-shadow: var(--shadow);
+        }
+
+        .modal h2 {
+            margin-bottom: 1rem;
+            font-size: 1.2rem;
+            color: var(--text-main);
+        }
+
+        .modal textarea {
+            width: 100%;
+            height: 150px;
+            padding: 10px;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            margin-bottom: 1rem;
+            font-family: monospace;
+            font-size: 0.8rem;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .modal-buttons button {
+            flex: 1;
+            padding: 10px;
+            border-radius: 10px;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .btn-cancel {
+            background: #f1f5f9;
+            color: var(--text-main);
+        }
+
+        .btn-confirm {
+            background: var(--primary);
+            color: white;
+        }
+
+        /* Error Message Styles */
+        .error-overlay {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 90%;
+            max-width: 500px;
+            background: #fff1f2;
+            border-left: 5px solid var(--danger);
+            padding: 16px;
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            z-index: 2000;
+            animation: slideDown 0.3s ease-out;
+        }
+
+        @keyframes slideDown {
+            from { transform: translate(-50%, -100%); opacity: 0; }
+            to { transform: translate(-50%, 0); opacity: 1; }
+        }
+
+        .error-message {
+            color: #991b1b;
+            font-size: 0.9rem;
+            line-height: 1.5;
+            user-select: text;
+            word-break: break-all;
+            white-space: pre-wrap;
+        }
+
+        .error-close {
+            position: absolute;
+            top: 8px;
+            right: 12px;
+            background: none;
+            border: none;
+            color: #991b1b;
+            cursor: pointer;
+            font-size: 1.2rem;
+            padding: 0;
+        }
+
+        /* Clock style for Section E */
+        .status-clock {
+            text-align: right;
+            margin-bottom: 1rem;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+        }
+
+        .clock-date {
+            font-size: 1.4rem;
+            font-weight: 600;
+            color: var(--primary);
+            display: block;
+        }
+
+        .clock-time {
+            font-size: 0.85rem;
+            color: var(--text-sub);
+            font-weight: 400;
+        }
+
+        .empty-section {
+            color: var(--text-sub);
+            font-size: 0.85rem;
+            text-align: center;
+            padding: 2rem 0;
+            font-style: italic;
+        }
     </style>
 </head>
 
@@ -276,21 +703,80 @@
     <div id="root"></div>
 
     <script type="text/babel">
-        const { useState, useEffect, useRef } = React;
+        const { useState, useEffect, useRef, useMemo } = React;
 
         // Configuration
         const CLIENT_ID = '323231200878-gajpuhdje888i12ebrpneqqgp7p9ebm8.apps.googleusercontent.com';
         const SCOPES = 'https://www.googleapis.com/auth/calendar.events';
         const DISCOVERY_DOC = 'https://www.googleapis.com/discovery/v1/apis/calendar/v3/rest';
+        const STABLE_V1_API_VERSION = 'v1';
+        const STABLE_V1BETA_API_VERSION = 'v1beta';
+        const GEMINI_API_KEY = 'AIzaSyCFitf_sL62lE0QZgwMRQTEOPS-Gegem1g';
+        const APP_ID = 'PremiumTodoApp'; // 이 앱에서 만든 일정만 구분하기 위한 꼬리표
 
         function App() {
-            const [todos, setTodos] = useState([
-                { id: 1, text: '반가워요! 구글 캘린더와 연동해보세요.', date: '', synced: false }
-            ]);
+            const [todos, setTodos] = useState([]);
             const [inputValue, setInputValue] = useState('');
             const [inputDate, setInputDate] = useState('');
             const [isAuthorized, setIsAuthorized] = useState(false);
+            const [isProcessing, setIsProcessing] = useState(false);
+            const [error, setError] = useState(null);
+            const [currentTime, setCurrentTime] = useState(new Date());
+            const [isSyncing, setIsSyncing] = useState(false);
+
+            // 수정 모드 상태
+            const [editingId, setEditingId] = useState(null);
+            const [editState, setEditState] = useState({ text: '', date: '' });
             const tokenClient = useRef(null);
+            const fileInputRef = useRef(null);
+            const todosRef = useRef(todos);
+            const isAuthorizedRef = useRef(isAuthorized);
+
+            // Ref 업데이트 (Stale Closure 방지)
+            useEffect(() => {
+                todosRef.current = todos;
+                isAuthorizedRef.current = isAuthorized;
+            });
+
+            useEffect(() => {
+                const timer = setInterval(() => setCurrentTime(new Date()), 1000);
+                return () => clearInterval(timer);
+            }, []);
+
+            const categorizedTodos = useMemo(() => {
+                const now = currentTime;
+                const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+                const tomorrow = new Date(today);
+                tomorrow.setDate(today.getDate() + 1);
+                const dayAfterTomorrow = new Date(today);
+                dayAfterTomorrow.setDate(today.getDate() + 2);
+
+                const formatDateStr = (d) => {
+                    const year = d.getFullYear();
+                    const month = String(d.getMonth() + 1).padStart(2, '0');
+                    const date = String(d.getDate()).padStart(2, '0');
+                    return `${year}-${month}-${date}`;
+                };
+
+                const todayStr = formatDateStr(today);
+                const tomorrowStr = formatDateStr(tomorrow);
+                const dayAfterStr = formatDateStr(dayAfterTomorrow);
+
+                const cats = { A: [], B: [], C: [], D: [] };
+
+                todos.forEach(todo => {
+                    if (!todo.date) {
+                        cats.A.push(todo); // 할 일 추가 시 날짜 미지정은 '오늘'로 분류
+                        return;
+                    }
+                    const dStr = todo.date.split('T')[0];
+                    if (dStr === todayStr) cats.A.push(todo);
+                    else if (dStr === tomorrowStr) cats.B.push(todo);
+                    else if (dStr >= dayAfterStr) cats.C.push(todo);
+                    else cats.D.push(todo);
+                });
+                return cats;
+            }, [todos, currentTime.toDateString()]);
 
             useEffect(() => {
                 const initGapi = () => {
@@ -305,14 +791,17 @@
                     tokenClient.current = google.accounts.oauth2.initTokenClient({
                         client_id: CLIENT_ID,
                         scope: SCOPES,
-                        callback: async (resp) => {
-                            if (resp.error !== undefined) throw (resp);
-                            setIsAuthorized(true);
-                        },
+                            callback: async (resp) => {
+                                if (resp.error !== undefined) throw (resp);
+                                setIsAuthorized(true);
+                                // 로그인 성공 시: 구글 캘린더에서 우리 앱 일감 가져오기
+                                setTimeout(async () => {
+                                    await fetchCalendarTasks();
+                                }, 500); 
+                            },
                     });
                 };
 
-                // Polling for library load
                 const checkLibs = setInterval(() => {
                     if (typeof gapi !== 'undefined' && typeof google !== 'undefined') {
                         initGapi();
@@ -323,6 +812,32 @@
 
                 return () => clearInterval(checkLibs);
             }, []);
+
+            // 자동 동기화 설정 (Polling + Window Focus/Visibility)
+            useEffect(() => {
+                if (!isAuthorized) return;
+
+                // 1분마다 자동 동기화
+                const syncInterval = setInterval(() => {
+                    fetchCalendarTasks();
+                }, 60000);
+
+                // 탭으로 돌아왔을 때 동기화 (탭 전환 + 창 전환 모두 감지)
+                const handleSyncTrigger = () => {
+                    if (document.visibilityState === 'visible') {
+                        fetchCalendarTasks();
+                    }
+                };
+                
+                window.addEventListener('focus', handleSyncTrigger);
+                document.addEventListener('visibilitychange', handleSyncTrigger);
+
+                return () => {
+                    clearInterval(syncInterval);
+                    window.removeEventListener('focus', handleSyncTrigger);
+                    document.removeEventListener('visibilitychange', handleSyncTrigger);
+                };
+            }, [isAuthorized]);
 
             const handleAuthClick = () => {
                 if (tokenClient.current) {
@@ -336,64 +851,340 @@
                     google.accounts.oauth2.revoke(token.access_token);
                     gapi.client.setToken('');
                     setIsAuthorized(false);
+                    setTodos([]); // 로그아웃 시 목록 비우기
                 }
             };
 
-            const createCalendarEvent = async (todo) => {
-                if (!todo.date || !isAuthorized) return false;
-
-                try {
-                    const startLocal = new Date(todo.date);
-                    const endLocal = new Date(startLocal.getTime() + 60 * 60 * 1000); // 1 hour later
-
-                    const event = {
-                        'summary': `Todo: ${todo.text}`,
-                        'start': {
-                            'dateTime': startLocal.toISOString(),
-                            'timeZone': Intl.DateTimeFormat().resolvedOptions().timeZone
-                        },
-                        'end': {
-                            'dateTime': endLocal.toISOString(),
-                            'timeZone': Intl.DateTimeFormat().resolvedOptions().timeZone
-                        }
-                    };
-
-                    await gapi.client.calendar.events.insert({
-                        'calendarId': 'primary',
-                        'resource': event,
-                    });
-                    return true;
-                } catch (err) {
-                    console.error('Error creating calendar event:', err);
-                    return false;
-                }
-            };
-
-            const addTodo = async () => {
-                if (inputValue.trim() === '') return;
+            const syncAllUnsyncedTodos = async () => {
+                const currentTodos = todosRef.current;
+                // 구저 날짜가 있고, 동기화가 필요하거나 ID가 없는 항목들
+                const unsynced = currentTodos.filter(t => t.date && !t.synced);
                 
-                const newTodo = {
-                    id: Date.now(),
-                    text: inputValue,
-                    date: inputDate,
-                    synced: false
-                };
-
-                // Optimized UI Update: Add to UI first, then sync
-                setTodos(prev => [...prev, newTodo]);
-                setInputValue('');
-                setInputDate('');
-
-                if (isAuthorized && inputDate) {
-                    const success = await createCalendarEvent(newTodo);
-                    if (success) {
-                        setTodos(prev => prev.map(t => t.id === newTodo.id ? { ...t, synced: true } : t));
+                if (unsynced.length === 0) return;
+                console.log(`Syncing ${unsynced.length} todos...`);
+                
+                for (const todo of unsynced) {
+                    try {
+                        await syncTodoItem(todo, true);
+                    } catch (err) {
+                        console.error(`Failed to sync todo: ${todo.text}`, err);
                     }
                 }
             };
 
-            const deleteTodo = (id) => {
-                setTodos(todos.filter(todo => todo.id !== id));
+            const fetchCalendarTasks = async () => {
+                if (!isAuthorizedRef.current) return;
+                setIsSyncing(true);
+                try {
+                    const response = await gapi.client.calendar.events.list({
+                        'calendarId': 'primary',
+                        'privateExtendedProperty': `appId=${APP_ID}`,
+                        'timeMin': (new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)).toISOString(), // 30일 전부터
+                        'showDeleted': false,
+                        'singleEvents': true
+                    });
+
+                    const events = response.result.items || [];
+                    const remoteTodos = events.map(event => {
+                        const isDone = event.summary.startsWith('[Done] ');
+                        const text = isDone ? event.summary.replace('[Done] Todo: ', '') : event.summary.replace('Todo: ', '');
+                        return {
+                            id: event.extendedProperties?.private?.localId || event.id,
+                            text: text,
+                            date: event.start.dateTime || event.start.date,
+                            completed: isDone,
+                            synced: true,
+                            calendarEventId: event.id
+                        };
+                    });
+
+                    // 전체 상태 교체 (Cloud가 Source of Truth)
+                    setTodos(remoteTodos.sort((a, b) => {
+                        if (!a.date && !b.date) return 0;
+                        if (!a.date) return 1;
+                        if (!b.date) return -1;
+                        return new Date(a.date) - new Date(b.date);
+                    }));
+                } catch (err) {
+                    console.error('Error fetching calendar tasks:', err);
+                } finally {
+                    setIsSyncing(false);
+                }
+            };
+
+            const syncTodoItem = async (todo, forceAuth = false) => {
+                const authed = forceAuth || isAuthorizedRef.current;
+                if (!todo.date || !authed) return null;
+
+                try {
+                    const statusPrefix = todo.completed ? '[Done] ' : '';
+                    const startLocal = new Date(todo.date);
+                    const endLocal = new Date(startLocal.getTime() + 60 * 60 * 1000);
+
+                    const resource = {
+                        'summary': `${statusPrefix}Todo: ${todo.text}`,
+                        'start': { 'dateTime': startLocal.toISOString(), 'timeZone': Intl.DateTimeFormat().resolvedOptions().timeZone },
+                        'end': { 'dateTime': endLocal.toISOString(), 'timeZone': Intl.DateTimeFormat().resolvedOptions().timeZone },
+                        'extendedProperties': {
+                            'private': {
+                                'appId': APP_ID,
+                                'localId': String(todo.id)
+                            }
+                        }
+                    };
+
+                    let response;
+                    if (todo.calendarEventId) {
+                        response = await gapi.client.calendar.events.patch({
+                            'calendarId': 'primary',
+                            'eventId': todo.calendarEventId,
+                            'resource': resource
+                        });
+                    } else {
+                        response = await gapi.client.calendar.events.insert({
+                            'calendarId': 'primary',
+                            'resource': resource
+                        });
+                    }
+
+                    const newEventId = response.result.id;
+                    setTodos(prev => prev.map(t => t.id === todo.id ? { ...t, synced: true, calendarEventId: newEventId } : t));
+                    return newEventId;
+                } catch (err) {
+                    console.error('Error syncing todo item:', err);
+                    return null;
+                }
+            };
+
+            const addTodo = async (text = null, date = null) => {
+                const finalTodoText = text || inputValue;
+                const finalTodoDate = date || inputDate;
+
+                if (!finalTodoText.trim()) return;
+
+                const newTodo = {
+                    id: (typeof crypto !== 'undefined' && crypto.randomUUID) ? crypto.randomUUID() : `todo-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+                    text: finalTodoText,
+                    date: finalTodoDate,
+                    completed: false,
+                    synced: false,
+                    calendarEventId: null
+                };
+
+                setTodos(prev => {
+                    const updated = [...prev, newTodo];
+                    return updated.sort((a, b) => {
+                        if (!a.date && !b.date) return 0;
+                        if (!a.date) return 1;
+                        if (!b.date) return -1;
+                        return new Date(a.date) - new Date(b.date);
+                    });
+                });
+                
+                if (!text) setInputValue(''); 
+                if (!date) setInputDate('');
+
+                // 구글 캘린더 연동 (날짜가 있는 경우만)
+                if (isAuthorized && finalTodoDate) {
+                    await syncTodoItem(newTodo);
+                }
+            };
+
+            const toggleTodo = async (id) => {
+                let updatedTodo = null;
+                setTodos(prev => {
+                    const next = prev.map(todo => {
+                        if (todo.id === id) {
+                            updatedTodo = { ...todo, completed: !todo.completed, synced: false };
+                            return updatedTodo;
+                        }
+                        return todo;
+                    });
+                    return next;
+                });
+
+                // 비동기로 구글 캘린더 업데이트
+                if (isAuthorized && updatedTodo) {
+                    await syncTodoItem(updatedTodo);
+                }
+            };
+
+            const startEditing = (todo) => {
+                setEditingId(todo.id);
+                setEditState({ text: todo.text, date: todo.date });
+            };
+
+            const cancelEditing = () => {
+                setEditingId(null);
+            };
+
+            const saveTodo = async (id) => {
+                // Find current state of todo for logic - using ref to avoid stale closure
+                const todo = todosRef.current.find(t => t.id === id);
+                if (!todo) return;
+
+                const isDateChanged = todo.date !== editState.date;
+                const isTextChanged = todo.text !== editState.text;
+
+                if (!isDateChanged && !isTextChanged) {
+                    setEditingId(null);
+                    return;
+                }
+
+                // Stage the update locally
+                const updatedTodo = { ...todo, text: editState.text, date: editState.date, synced: false };
+                setTodos(prev => prev.map(t => t.id === id ? updatedTodo : t));
+                setEditingId(null);
+
+                // Handle Google Calendar Sync if authorized
+                if (isAuthorized && updatedTodo.date) {
+                    await syncTodoItem(updatedTodo);
+                }
+            };
+
+            const processImage = async (file) => {
+                if (!file) return;
+                setIsProcessing(true);
+
+                try {
+                    const reader = new FileReader();
+                    reader.onload = async (e) => {
+                        try {
+                            const base64Data = e.target.result.split(',')[1];
+                            
+                const prompt = `
+                    Analyze the attached screenshot and extract to-do items.
+                    Current Year: 2026.
+                    
+                    Required Format (JSON Array):
+                    [
+                      {"text": "Task description", "date": "YYYY-MM-DD", "time": "HH:mm"},
+                      ...
+                    ]
+                    
+                    Rules:
+                    1. Use 2026 if the year is missing.
+                    2. Use '11:00' if the time is missing.
+                    3. Return ONLY the JSON array.
+                    4. Escape all special characters properly.
+                `;
+
+                const models = [
+                    { id: 'gemini-3-flash-preview', version: 'v1beta' },
+                    { id: 'gemini-2.0-flash', version: 'v1beta' },
+                    { id: 'gemini-1.5-flash', version: 'v1beta' }
+                ];
+
+                let lastError = null;
+                let success = false;
+
+                for (const model of models) {
+                    try {
+                        console.log(`Attempting analysis with ${model.id}...`);
+                        const response = await fetch(`https://generativelanguage.googleapis.com/${model.version}/models/${model.id}:generateContent?key=${GEMINI_API_KEY}`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                contents: [{
+                                    parts: [
+                                        { text: prompt },
+                                        { inline_data: { mime_type: file.type, data: base64Data } }
+                                    ]
+                                }]
+                            })
+                        });
+
+                        const result = await response.json();
+
+                        if (!response.ok) {
+                            throw new Error(result.error?.message || `API Error (${response.status})`);
+                        }
+
+                        if (!result.candidates || result.candidates.length === 0) {
+                            throw new Error('Empty AI response');
+                        }
+
+                        let content = result.candidates[0].content.parts[0].text.trim();
+                        content = content.replace(/```json|```/g, '').trim();
+                        
+                        const parsed = JSON.parse(content);
+                        if (Array.isArray(parsed) && parsed.length > 0) {
+                            parsed.forEach(item => {
+                                addTodo(item.text, item.date ? `${item.date}T${item.time || '11:00'}` : '');
+                            });
+                            success = true;
+                            console.log(`Successfully analyzed with ${model.id}`);
+                            break; // Exit loop on success
+                        } else {
+                            throw new Error('Invalid or empty JSON items');
+                        }
+                    } catch (err) {
+                        console.warn(`${model.id} failed:`, err.message);
+                        lastError = err;
+                        // Continue to next model in waterfall
+                    }
+                }
+
+                if (!success) {
+                    throw lastError || new Error('All models failed to process the image.');
+                }
+            } catch (err) {
+                console.error('Final AI Processing Error:', err);
+                let msg = err.message;
+                if (msg.includes('Quota exceeded')) {
+                    msg = "⚠️ 할당량 초과: API 사용량이 소진되었습니다. 잠시 후 서버가 초기화되면 다시 시도해 주세요.";
+                } else if (msg.includes('not found')) {
+                    msg = `❌ 모델 연결 오류: ${msg}\n현재 API 키에서 지원하지 않는 모델일 수 있습니다.`;
+                }
+                setError(msg);
+            } finally {
+                setIsProcessing(false);
+            }
+        };
+                    reader.onerror = () => {
+                        setError('파일을 읽는 중 오류가 발생했습니다.');
+                        setIsProcessing(false);
+                    };
+                    reader.readAsDataURL(file);
+                } catch (error) {
+                    console.error('File Reader Error:', error);
+                    setIsProcessing(false);
+                }
+            };
+
+            const handleFileChange = (e) => {
+                const file = e.target.files[0];
+                if (file) {
+                    processImage(file);
+                    e.target.value = ''; // Reset for re-selection
+                }
+            };
+
+            const deleteCalendarEvent = async (eventId) => {
+                if (!eventId || !isAuthorized) return;
+                try {
+                    await gapi.client.calendar.events.delete({
+                        'calendarId': 'primary',
+                        'eventId': eventId
+                    });
+                } catch (err) {
+                    console.error('Error deleting calendar event:', err);
+                }
+            };
+
+            const deleteTodo = async (id) => {
+                // Find todo in current state ref for async safety
+                const todoToDelete = todosRef.current.find(t => t.id === id);
+                
+                if (todoToDelete && todoToDelete.calendarEventId && isAuthorized) {
+                    try {
+                        await deleteCalendarEvent(todoToDelete.calendarEventId);
+                    } catch (err) {
+                        console.error('Failed to delete calendar event, but removing locally anyway:', err);
+                    }
+                }
+                
+                setTodos(prev => prev.filter(todo => todo.id !== id));
             };
 
             const handleKeyPress = (e) => {
@@ -415,77 +1206,183 @@
                 });
             };
 
-            return (
-                <div className="todo-container">
-                    <h1>My Tasks</h1>
-                    <div className="auth-status">
-                        {isAuthorized ? (
-                            <>
-                                <span style={{color: 'var(--success)'}}>● Google 연동 중</span>
-                                <button className="google-btn" onClick={handleSignoutClick}>연동 해제</button>
-                            </>
+            const renderSection = (category, title, labelText) => {
+                const sectionTodos = categorizedTodos[category];
+                return (
+                    <div className="todo-section">
+                        <div className="section-header">
+                            <h2>{title}</h2>
+                            <span className="section-label">{labelText}</span>
+                        </div>
+                        
+
+
+                        {sectionTodos.length === 0 ? (
+                            <div className="empty-section">할 일이 없습니다 ✨</div>
                         ) : (
-                            <>
-                                <span>Google 캘린더와 연동하여 일정을 관리하세요.</span>
-                                <button className="google-btn" onClick={handleAuthClick}>
-                                    <svg width="14" height="14" viewBox="0 0 18 18"><path fill="#4285F4" d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.874 2.684-6.615z"></path><path fill="#34A853" d="M9 18c2.43 0 4.467-.806 5.956-2.184l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 0 0 9 18z"></path><path fill="#FBBC05" d="M3.964 10.705c-.181-.54-.285-1.114-.285-1.705s.104-1.165.285-1.705V4.963H.957A8.996 8.996 0 0 0 0 9c0 1.452.348 2.827.957 4.037l3.007-2.332z"></path><path fill="#EA4335" d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 0 0 .957 4.963l3.007 2.332C4.672 5.164 6.656 3.58 9 3.58z"></path></svg>
-                                    연동하기
-                                </button>
-                            </>
+                            <ul>
+                                {sectionTodos.map(todo => {
+                                    const isEditing = editingId === todo.id;
+                                    return (
+                                        <li key={todo.id} className={`todo-item ${todo.completed ? 'completed' : ''}`}>
+                                            <input 
+                                                type="checkbox" 
+                                                className="todo-checkbox"
+                                                checked={todo.completed}
+                                                onChange={() => toggleTodo(todo.id)}
+                                            />
+                                            <div className="todo-content">
+                                                {isEditing ? (
+                                                    <div className="edit-mode-container" onClick={(e) => e.stopPropagation()}>
+                                                        <input 
+                                                            type="text" 
+                                                            className="edit-input"
+                                                            value={editState.text}
+                                                            onChange={(e) => setEditState({ ...editState, text: e.target.value })}
+                                                            autoFocus
+                                                        />
+                                                        <div className="edit-btn-row">
+                                                            <input 
+                                                                type="datetime-local" 
+                                                                className="edit-date-input"
+                                                                value={editState.date}
+                                                                onChange={(e) => setEditState({ ...editState, date: e.target.value })}
+                                                            />
+                                                            <div className="todo-actions">
+                                                                <button className="save-btn" onClick={() => saveTodo(todo.id)}>저장</button>
+                                                                <button className="cancel-btn" onClick={cancelEditing}>취소</button>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                ) : (
+                                                    <div onClick={() => startEditing(todo)} style={{ width: '100%' }}>
+                                                        <span className="todo-text">{todo.text}</span>
+                                                        <div className="todo-meta">
+                                                            {todo.date && (
+                                                                <span className="todo-date">📅 {formatDateTime(todo.date)}</span>
+                                                            )}
+                                                            {todo.synced && (
+                                                                <span className="sync-status">✓</span>
+                                                            )}
+                                                        </div>
+                                                    </div>
+                                                )}
+                                            </div>
+                                            {!isEditing && (
+                                                <button
+                                                    className="delete-btn"
+                                                    onClick={(e) => { e.stopPropagation(); deleteTodo(todo.id); }}
+                                                    title="삭제"
+                                                >
+                                                    &times;
+                                                </button>
+                                            )}
+                                        </li>
+                                    );
+                                })}
+                            </ul>
                         )}
                     </div>
+                );
+            };
 
-                    <div className="input-group">
-                        <div className="input-row">
-                            <input
-                                type="text"
-                                placeholder="할 일을 입력하세요..."
-                                value={inputValue}
-                                onChange={(e) => setInputValue(e.target.value)}
-                                onKeyPress={handleKeyPress}
-                            />
+            return (
+                <div className="todo-container" style={{position: 'relative'}}>
+                    {error && (
+                        <div className="error-overlay">
+                            <button className="error-close" onClick={() => setError(null)}>&times;</button>
+                            <div className="error-message">
+                                <strong>[오류 발생 - 드래그하여 복사 가능]</strong><br/>
+                                {error}
+                            </div>
                         </div>
-                        <div className="input-row">
-                            <input
-                                type="datetime-local"
-                                value={inputDate}
-                                onChange={(e) => setInputDate(e.target.value)}
-                                onKeyPress={handleKeyPress}
-                            />
-                        </div>
-                        <button className="add-btn" onClick={addTodo}>추가</button>
-                    </div>
-
-                    {todos.length === 0 ? (
-                        <div className="empty-state">
-                            할 일을 추가해 보세요! ✨
-                        </div>
-                    ) : (
-                        <ul>
-                            {todos.map(todo => (
-                                <li key={todo.id} className="todo-item">
-                                    <div className="todo-content">
-                                        <span className="todo-text">{todo.text}</span>
-                                        <div className="todo-meta">
-                                            {todo.date && (
-                                                <span className="todo-date">📅 {formatDateTime(todo.date)}</span>
-                                            )}
-                                            {todo.synced && (
-                                                <span className="sync-status">✓ 캘린더 동기화됨</span>
-                                            )}
-                                        </div>
-                                    </div>
-                                    <button
-                                        className="delete-btn"
-                                        onClick={() => deleteTodo(todo.id)}
-                                        title="삭제"
-                                    >
-                                        &times;
-                                    </button>
-                                </li>
-                            ))}
-                        </ul>
                     )}
+                    
+                    <div className="main-layout">
+                        {/* Section A: Today */}
+                        {renderSection('A', '오늘', 'A')}
+
+                        {/* Section B: Tomorrow */}
+                        {renderSection('B', '내일', 'B')}
+
+                        {/* Section E: Management (Center) */}
+                        <div className="todo-section section-center">
+                            <div className="section-header">
+                                <h2>My Tasks</h2>
+                                <span className="section-label">E</span>
+                            </div>
+
+                            <div className="status-clock">
+                                <span className="clock-date">
+                                    {currentTime.toLocaleDateString('ko-KR', { month: 'long', day: 'numeric', weekday: 'short' })}
+                                </span>
+                                <span className="clock-time">
+                                    {currentTime.toLocaleTimeString('ko-KR', { hour12: false })}
+                                </span>
+                            </div>
+
+                            <div className="auth-status">
+                                {isAuthorized ? (
+                                <div className="auth-connected">
+                                    <span className="status-dot"></span>
+                                    <span className="status-text">
+                                        연동됨 {isSyncing && <span style={{fontSize: '0.7rem', color: 'var(--primary)', marginLeft: '4px', fontStyle: 'italic'}}> 동기화 중...</span>}
+                                    </span>
+                                    <button className="auth-btn" onClick={handleSignoutClick}>연동 해제</button>
+                                </div>
+                                ) : (
+                                    <div className="auth-disconnected">
+                                        <span className="status-text">구글 연동이 필요합니다</span>
+                                        <button className="auth-btn highlight" onClick={handleAuthClick}>연동하기</button>
+                                    </div>
+                                )}
+                            </div>
+
+                            <div className="todo-input-container">
+                                <input
+                                    type="text"
+                                    className="todo-input"
+                                    placeholder={isAuthorized ? "할 일을 입력하세요..." : "먼저 구글 연동을 해주세요"}
+                                    value={inputValue}
+                                    onChange={(e) => setInputValue(e.target.value)}
+                                    onKeyPress={handleKeyPress}
+                                    disabled={!isAuthorized}
+                                />
+                                <div className="input-row">
+                                    <input
+                                        type="datetime-local"
+                                        className="date-input"
+                                        value={inputDate}
+                                        onChange={(e) => setInputDate(e.target.value)}
+                                        disabled={!isAuthorized}
+                                    />
+                                    <button className="add-btn" onClick={() => addTodo()} disabled={!isAuthorized}>
+                                        추가
+                                    </button>
+                                </div>
+                                <button 
+                                    className="ai-import-btn"
+                                    onClick={() => fileInputRef.current.click()}
+                                    disabled={!isAuthorized || isProcessing}
+                                >
+                                    {isProcessing ? '🤖 분석 중...' : '📸 스크린샷 분석'}
+                                </button>
+                                <input
+                                    type="file"
+                                    ref={fileInputRef}
+                                    onChange={handleFileChange}
+                                    accept="image/*"
+                                    style={{ display: 'none' }}
+                                />
+                            </div>
+                        </div>
+
+                        {/* Section C: Upcoming */}
+                        {renderSection('C', '이후', 'C')}
+
+                        {/* Section D: Past */}
+                        {renderSection('D', '과거', 'D')}
+                    </div>
                 </div>
             );
         }

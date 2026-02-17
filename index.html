@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Premium React Todo List</title>
+    <!-- React & Babel CDN -->
+    <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600&display=swap" rel="stylesheet">
+
+    <!-- Google API & GIS -->
+    <script async defer src="https://apis.google.com/js/api.js"></script>
+    <script async defer src="https://accounts.google.com/gsi/client"></script>
+
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-hover: #4f46e5;
+            --bg: #f8fafc;
+            --card-bg: #ffffff;
+            --text-main: #1e293b;
+            --text-sub: #64748b;
+            --danger: #ef4444;
+            --success: #10b981;
+            --google: #4285f4;
+            --shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        body {
+            background-color: #000;
+            background-image: url('bg_karina.png');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.4);
+            z-index: -1;
+        }
+
+        #root {
+            width: 100%;
+            max-width: 450px;
+            z-index: 1;
+        }
+
+        .todo-container {
+            background: rgba(255, 255, 255, 0.85);
+            padding: 2rem;
+            border-radius: 24px;
+            box-shadow: var(--shadow);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        h1 {
+            color: var(--text-main);
+            font-size: 1.8rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            text-align: center;
+            background: linear-gradient(to right, var(--primary), #a855f7);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .auth-status {
+            text-align: center;
+            font-size: 0.8rem;
+            color: var(--text-sub);
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .google-btn {
+            background: #fff;
+            color: var(--text-main);
+            border: 1px solid #e2e8f0;
+            padding: 6px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s;
+        }
+
+        .google-btn:hover {
+            background: #f8fafc;
+            border-color: var(--google);
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 1.5rem;
+        }
+
+        .input-row {
+            display: flex;
+            gap: 10px;
+        }
+
+        input {
+            flex: 1;
+            padding: 12px 16px;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            outline: none;
+            transition: all 0.3s ease;
+            font-size: 1rem;
+        }
+
+        input[type="datetime-local"] {
+            color: var(--text-sub);
+        }
+
+        input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+        }
+
+        button.add-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+
+        button.add-btn:hover {
+            background: var(--primary-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+        }
+
+        button.add-btn:active {
+            transform: translateY(0);
+        }
+
+        ul {
+            list-style: none;
+        }
+
+        .todo-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 16px;
+            background: #f1f5f9;
+            margin-bottom: 10px;
+            border-radius: 12px;
+            transition: all 0.2s ease;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .todo-item:hover {
+            transform: scale(1.02);
+            background: #e2e8f0;
+        }
+
+        .todo-content {
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+        }
+
+        .todo-text {
+            color: var(--text-main);
+            font-size: 1rem;
+            font-weight: 400;
+        }
+
+        .todo-meta {
+            display: flex;
+            gap: 10px;
+            margin-top: 4px;
+        }
+
+        .todo-date {
+            font-size: 0.75rem;
+            color: var(--text-sub);
+        }
+
+        .sync-status {
+            font-size: 0.7rem;
+            color: var(--success);
+        }
+
+        .delete-btn {
+            background: none;
+            border: none;
+            color: var(--text-sub);
+            cursor: pointer;
+            padding: 4px 8px;
+            border-radius: 6px;
+            transition: all 0.2s ease;
+            font-size: 1.2rem;
+            margin-left: 10px;
+        }
+
+        .delete-btn:hover {
+            color: var(--danger);
+            background: rgba(239, 68, 68, 0.1);
+        }
+
+        .empty-state {
+            text-align: center;
+            color: var(--text-sub);
+            margin-top: 2rem;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect, useRef } = React;
+
+        // Configuration
+        const CLIENT_ID = '323231200878-gajpuhdje888i12ebrpneqqgp7p9ebm8.apps.googleusercontent.com';
+        const SCOPES = 'https://www.googleapis.com/auth/calendar.events';
+        const DISCOVERY_DOC = 'https://www.googleapis.com/discovery/v1/apis/calendar/v3/rest';
+
+        function App() {
+            const [todos, setTodos] = useState([
+                { id: 1, text: '반가워요! 구글 캘린더와 연동해보세요.', date: '', synced: false }
+            ]);
+            const [inputValue, setInputValue] = useState('');
+            const [inputDate, setInputDate] = useState('');
+            const [isAuthorized, setIsAuthorized] = useState(false);
+            const tokenClient = useRef(null);
+
+            useEffect(() => {
+                const initGapi = () => {
+                    gapi.load('client', async () => {
+                        await gapi.client.init({
+                            discoveryDocs: [DISCOVERY_DOC],
+                        });
+                    });
+                };
+
+                const initGis = () => {
+                    tokenClient.current = google.accounts.oauth2.initTokenClient({
+                        client_id: CLIENT_ID,
+                        scope: SCOPES,
+                        callback: async (resp) => {
+                            if (resp.error !== undefined) throw (resp);
+                            setIsAuthorized(true);
+                        },
+                    });
+                };
+
+                // Polling for library load
+                const checkLibs = setInterval(() => {
+                    if (typeof gapi !== 'undefined' && typeof google !== 'undefined') {
+                        initGapi();
+                        initGis();
+                        clearInterval(checkLibs);
+                    }
+                }, 100);
+
+                return () => clearInterval(checkLibs);
+            }, []);
+
+            const handleAuthClick = () => {
+                if (tokenClient.current) {
+                    tokenClient.current.requestAccessToken({ prompt: 'consent' });
+                }
+            };
+
+            const handleSignoutClick = () => {
+                const token = gapi.client.getToken();
+                if (token !== null) {
+                    google.accounts.oauth2.revoke(token.access_token);
+                    gapi.client.setToken('');
+                    setIsAuthorized(false);
+                }
+            };
+
+            const createCalendarEvent = async (todo) => {
+                if (!todo.date || !isAuthorized) return false;
+
+                try {
+                    const startLocal = new Date(todo.date);
+                    const endLocal = new Date(startLocal.getTime() + 60 * 60 * 1000); // 1 hour later
+
+                    const event = {
+                        'summary': `Todo: ${todo.text}`,
+                        'start': {
+                            'dateTime': startLocal.toISOString(),
+                            'timeZone': Intl.DateTimeFormat().resolvedOptions().timeZone
+                        },
+                        'end': {
+                            'dateTime': endLocal.toISOString(),
+                            'timeZone': Intl.DateTimeFormat().resolvedOptions().timeZone
+                        }
+                    };
+
+                    await gapi.client.calendar.events.insert({
+                        'calendarId': 'primary',
+                        'resource': event,
+                    });
+                    return true;
+                } catch (err) {
+                    console.error('Error creating calendar event:', err);
+                    return false;
+                }
+            };
+
+            const addTodo = async () => {
+                if (inputValue.trim() === '') return;
+                
+                const newTodo = {
+                    id: Date.now(),
+                    text: inputValue,
+                    date: inputDate,
+                    synced: false
+                };
+
+                // Optimized UI Update: Add to UI first, then sync
+                setTodos(prev => [...prev, newTodo]);
+                setInputValue('');
+                setInputDate('');
+
+                if (isAuthorized && inputDate) {
+                    const success = await createCalendarEvent(newTodo);
+                    if (success) {
+                        setTodos(prev => prev.map(t => t.id === newTodo.id ? { ...t, synced: true } : t));
+                    }
+                }
+            };
+
+            const deleteTodo = (id) => {
+                setTodos(todos.filter(todo => todo.id !== id));
+            };
+
+            const handleKeyPress = (e) => {
+                if (e.key === 'Enter') {
+                    addTodo();
+                }
+            };
+
+            const formatDateTime = (dateTimeStr) => {
+                if (!dateTimeStr) return '';
+                const date = new Date(dateTimeStr);
+                return date.toLocaleString('ko-KR', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    hour12: true
+                });
+            };
+
+            return (
+                <div className="todo-container">
+                    <h1>My Tasks</h1>
+                    <div className="auth-status">
+                        {isAuthorized ? (
+                            <>
+                                <span style={{color: 'var(--success)'}}>● Google 연동 중</span>
+                                <button className="google-btn" onClick={handleSignoutClick}>연동 해제</button>
+                            </>
+                        ) : (
+                            <>
+                                <span>Google 캘린더와 연동하여 일정을 관리하세요.</span>
+                                <button className="google-btn" onClick={handleAuthClick}>
+                                    <svg width="14" height="14" viewBox="0 0 18 18"><path fill="#4285F4" d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.874 2.684-6.615z"></path><path fill="#34A853" d="M9 18c2.43 0 4.467-.806 5.956-2.184l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 0 0 9 18z"></path><path fill="#FBBC05" d="M3.964 10.705c-.181-.54-.285-1.114-.285-1.705s.104-1.165.285-1.705V4.963H.957A8.996 8.996 0 0 0 0 9c0 1.452.348 2.827.957 4.037l3.007-2.332z"></path><path fill="#EA4335" d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 0 0 .957 4.963l3.007 2.332C4.672 5.164 6.656 3.58 9 3.58z"></path></svg>
+                                    연동하기
+                                </button>
+                            </>
+                        )}
+                    </div>
+
+                    <div className="input-group">
+                        <div className="input-row">
+                            <input
+                                type="text"
+                                placeholder="할 일을 입력하세요..."
+                                value={inputValue}
+                                onChange={(e) => setInputValue(e.target.value)}
+                                onKeyPress={handleKeyPress}
+                            />
+                        </div>
+                        <div className="input-row">
+                            <input
+                                type="datetime-local"
+                                value={inputDate}
+                                onChange={(e) => setInputDate(e.target.value)}
+                                onKeyPress={handleKeyPress}
+                            />
+                        </div>
+                        <button className="add-btn" onClick={addTodo}>추가</button>
+                    </div>
+
+                    {todos.length === 0 ? (
+                        <div className="empty-state">
+                            할 일을 추가해 보세요! ✨
+                        </div>
+                    ) : (
+                        <ul>
+                            {todos.map(todo => (
+                                <li key={todo.id} className="todo-item">
+                                    <div className="todo-content">
+                                        <span className="todo-text">{todo.text}</span>
+                                        <div className="todo-meta">
+                                            {todo.date && (
+                                                <span className="todo-date">📅 {formatDateTime(todo.date)}</span>
+                                            )}
+                                            {todo.synced && (
+                                                <span className="sync-status">✓ 캘린더 동기화됨</span>
+                                            )}
+                                        </div>
+                                    </div>
+                                    <button
+                                        className="delete-btn"
+                                        onClick={() => deleteTodo(todo.id)}
+                                        title="삭제"
+                                    >
+                                        &times;
+                                    </button>
+                                </li>
+                            ))}
+                        </ul>
+                    )}
+                </div>
+            );
+        }
+
+        const container = document.getElementById('root');
+        const root = ReactDOM.createRoot(container);
+        root.render(<App />);
+    </script>
+</body>
+
+</html>

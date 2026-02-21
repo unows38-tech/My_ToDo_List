@@ -1048,13 +1048,24 @@
                         };
                     });
 
-                    // 전체 상태 교체 (Cloud가 Source of Truth)
-                    setTodos(remoteTodos.sort((a, b) => {
-                        if (!a.date && !b.date) return 0;
-                        if (!a.date) return 1;
-                        if (!b.date) return -1;
-                        return new Date(a.date) - new Date(b.date);
-                    }));
+                    // 전체 상태 업데이트 시, 아직 동기화되지 않은 로컬 항목은 보존함
+                    setTodos(prev => {
+                        const unsyncedLocals = prev.filter(t => !t.synced);
+                        const merged = [...remoteTodos, ...unsyncedLocals];
+                        
+                        // ID 중복 제거 (이미 동기화된 항목은 remote 버전이 Truth임)
+                        const uniqueMap = new Map();
+                        merged.forEach(todo => {
+                            uniqueMap.set(todo.id, todo);
+                        });
+
+                        return Array.from(uniqueMap.values()).sort((a, b) => {
+                            if (!a.date && !b.date) return 0;
+                            if (!a.date) return 1;
+                            if (!b.date) return -1;
+                            return new Date(a.date) - new Date(b.date);
+                        });
+                    });
                 } catch (err) {
                     console.error('Error fetching calendar tasks:', err);
                 } finally {

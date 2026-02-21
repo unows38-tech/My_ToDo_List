@@ -897,6 +897,30 @@
                 };
             }, [isAuthorized]);
 
+            // 클립보드 붙여넣기(Ctrl+V) 지원
+            useEffect(() => {
+                const handlePaste = (e) => {
+                    if (isProcessing) return;
+                    
+                    const items = (e.clipboardData || e.originalEvent?.clipboardData)?.items;
+                    if (!items) return;
+
+                    for (const item of items) {
+                        if (item.type.indexOf("image") !== -1) {
+                            const file = item.getAsFile();
+                            if (file) {
+                                console.log("Clipboard image detected, processing...");
+                                processImage(file);
+                            }
+                            break;
+                        }
+                    }
+                };
+
+                window.addEventListener('paste', handlePaste);
+                return () => window.removeEventListener('paste', handlePaste);
+            }, [isProcessing, apiKey]);
+
             const handleAuthClick = () => {
                 if (tokenClient.current) {
                     tokenClient.current.requestAccessToken({ prompt: 'consent' });
@@ -1451,7 +1475,7 @@
                                     onClick={() => fileInputRef.current.click()}
                                     disabled={!isAuthorized || isProcessing}
                                 >
-                                    {isProcessing ? '🤖 분석 중...' : '📸 스크린샷 분석'}
+                                    {isProcessing ? '🤖 분석 중...' : '📸 스크린샷 분석 (Ctrl+V)'}
                                 </button>
                                 <input
                                     type="file"
